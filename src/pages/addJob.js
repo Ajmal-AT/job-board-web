@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const BASE_URL = "https://job-board-app-production.up.railway.app";
-const JOBS_URL = `${BASE_URL}/job-board/jobs`;
-const ADD_JOB_URL = `${JOBS_URL}/save`;
+const ADD_JOB_URL = `${BASE_URL}/job-board/jobs/save`;
 
 const AddJob = () => {
     const [job, setJob] = useState({
-        job_number:"",
+        job_number: "",
         job_title: "",
         company_name: "",
         location: "",
@@ -24,11 +22,11 @@ const AddJob = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-    
+
         setJob((prevJob) => ({
             ...prevJob,
-            [name]: name === "location" || name === "key_skills" 
-                ? value.split(",").map((item) => item.trim())  // Convert comma-separated string to an array
+            [name]: name === "location" || name === "key_skills"
+                ? value.split("-").map((item) => item.trim())
                 : value
         }));
     };
@@ -37,21 +35,12 @@ const AddJob = () => {
         e.preventDefault();
 
         const jobData = {
-            job_number: job.job_number,
-            job_title: job.job_title,
-            company_name: job.company_name,
-            location: job.location,
-            key_skills: job.key_skills,
-            experience: job.experience,
-            salary: job.salary,
-            job_posted_date: job.job_posted_date,
-            job_description: job.job_description,
-            applyLink: job.applyLink
+            ...job
         };
 
         try {
-            console.log(jobData);
-            
+            console.log("Submitting Job:", jobData);
+
             const response = await fetch(ADD_JOB_URL, {
                 method: "POST",
                 mode: "cors",
@@ -62,39 +51,79 @@ const AddJob = () => {
                 body: JSON.stringify(jobData)
             });
 
-            if (response.status === 201 || response.status === 200) {
-                alert("Job added successfully!");
+            if (response.ok) {
+                alert("Job added successfully !");
                 navigate("/");
             } else {
                 alert("Failed to add job. Please try again.");
             }
         } catch (error) {
-            console.error("Error adding job:", error);
-            alert("An error occurred while adding the job.");
+            console.error("Error adding job : ", error);
+            alert("An error occurred while adding the job");
         }
     };
 
     return (
-        <div style={{ padding: "20px", maxWidth: "500px", margin: "auto" }}>
-            <h2>Add a Job</h2>
-            <form onSubmit={handleSubmit}>
-                <input type="text" name="job_number" placeholder="Job Number" value={job.job_number} onChange={handleChange} required style={inputStyle} />
-                <input type="text" name="job_title" placeholder="Job Title" value={job.job_title} onChange={handleChange} required style={inputStyle} />
-                <input type="text" name="company_name" placeholder="Company" value={job.company_name} onChange={handleChange} required style={inputStyle} />
-                <input type="text" name="location" placeholder="Location" value={job.location} onChange={handleChange} required style={inputStyle} />
-                <input type="text" name="key_skills" placeholder="Key Skills" value={job.key_skills} onChange={handleChange} required style={inputStyle} />
-                <input type="text" name="experience" placeholder="Experience" value={job.experience} onChange={handleChange} required style={inputStyle} />
-                <input type="text" name="salary" placeholder="Salary" value={job.salary} onChange={handleChange} required style={inputStyle} />
-                <input type="date" name="job_posted_date" value={job.job_posted_date} onChange={handleChange} required style={inputStyle} />
-                <textarea name="job_description" placeholder="Job Description" value={job.job_description} onChange={handleChange} required style={inputStyle} />
-                <input type="url" name="apply_link" placeholder="Job Apply Link" value={job.apply_link} onChange={handleChange} required style={inputStyle} />
-                <button type="submit" style={buttonStyle}>Submit</button>
-            </form>
+        <div className="container mt-5">
+            <div className="card shadow-lg p-4">
+                <h2 className="text-center fw-bold mb-4">Add a Job</h2>
+                <form onSubmit={handleSubmit}>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Job Number</label>
+                        <input type="text" name="job_number" className="form-control" placeholder="Enter Job Number" value={job.job_number} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Job Title</label>
+                        <input type="text" name="job_title" className="form-control" placeholder="Enter Job Title" value={job.job_title} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Company Name</label>
+                        <input type="text" name="company_name" className="form-control" placeholder="Enter Company Name" value={job.company_name} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Location</label>
+                        <input type="text" name="location" className="form-control" placeholder="Enter Location(s) - Separate multiple locations with '-'" value={job.location} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Key Skills</label>
+                        <input type="text" name="key_skills" className="form-control" placeholder="Enter Key Skills - Separate multiple skills with '-'" value={job.key_skills} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Experience</label>
+                        <input type="text" name="experience" className="form-control" placeholder="Enter Required Experience (e.g., 2-5 years)" value={job.experience} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Salary</label>
+                        <input type="text" name="salary" className="form-control" placeholder="Enter Salary Range (e.g., $60K - $80K)" value={job.salary} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Job Posted Date</label>
+                        <input type="date" name="job_posted_date" className="form-control" value={job.job_posted_date} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label fw-bold">Job Description</label>
+                        <textarea name="job_description" className="form-control" placeholder="Enter Job Description" rows="4" value={job.job_description} onChange={handleChange} required />
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="form-label fw-bold">Apply Link</label>
+                        <input type="url" name="applyLink" className="form-control" placeholder="Enter Application Link" value={job.applyLink} onChange={handleChange} required />
+                    </div>
+
+                    <button type="submit" className="btn btn-primary w-100 py-2">Submit Job</button>
+                </form>
+            </div>
         </div>
     );
 };
-
-const inputStyle = { display: "block", marginBottom: "10px", padding: "8px", width: "100%" };
-const buttonStyle = { padding: "10px", width: "100%", backgroundColor: "#007BFF", color: "white", border: "none", cursor: "pointer" };
 
 export default AddJob;
